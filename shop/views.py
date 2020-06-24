@@ -19,8 +19,8 @@ def register(request):
             # Saving directly to DB
             user = user_form.save()
             # Hashing pass
-            user.set_password(user.password)
-            user.save()
+            # user.set_password(user.password)
+            # user.save()
             profile = profile_form.save(commit=False)
             profile.user = user
             profile.save()
@@ -42,13 +42,14 @@ def home(request):
 
 def login(request):
     if request.method == 'POST':
-        user = authenticate(username=request.POST['username'],password=request.POST['password'])
+        user = authenticate(request,username=request.POST.get('username'),password=request.POST.get('password'))
         if user is not None:
             login_user(request,user)
-            if user.is_merchant:
-                return HttpResponseRedirect(reverse('merchant_homepage'))
+            user_profile = UserRegistration.objects.filter(user_id=request.user.id).first()
+            if user_profile.is_merchant:
+                return HttpResponseRedirect(reverse('merchant:merchant_homepage'))
             else:
-                return HttpResponseRedirect(reverse('merchant_list'))
+                return HttpResponseRedirect(reverse('shop:merchant_list'))
         else:
             messages.add_message(request,messages.ERROR,"Invalid password. Please try again.")
             return HttpResponseRedirect(reverse('shop:login'))
@@ -60,7 +61,7 @@ def login(request):
 
 @login_required
 def merchant_list(request):
-    user = UserRegistration.objects.filter(user=request.user).first()
+    user = UserRegistration.objects.filter(user_id=request.user.id).first()
     merchant_list = UserRegistration.objects.filter(is_merchant=True, zipcode=user.zipcode)
     return render(request, 'shop/merchant_list.html', {'merchant_list':merchant_list})
 

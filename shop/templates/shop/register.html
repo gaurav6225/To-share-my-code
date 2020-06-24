@@ -42,10 +42,13 @@
                 <div class="card">
                     <h4 class="card-header text-center">Register</h4>
                     <div class="card-block">
+                      {% load crispy_forms_tags %}
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            {{ user_form.as_p}}
-                            {{ profile_form.as_p }}
+                            {{ user_form|crispy }}
+                            {{ profile_form|crispy }}
+                            <!---{% crispy user_form %}
+                            {% crispy profile_form %}--->
                             <div class="mx-auto text-center">
                                 <input type="submit" value="Create Account" class="btn btn-primary">
                             </div>
